@@ -1,0 +1,28 @@
+import PyPDF2
+from gtts import gTTS
+import os
+
+def pdf_to_audio(pdf_file, audio_file_prefix):
+    # Abre el archivo PDF
+    with open(pdf_file, 'rb') as file:
+        reader = PyPDF2.PdfFileReader(file)
+        text = ""
+        
+        # Extrae el texto de cada página
+        for page_num in range(reader.numPages):
+            page = reader.getPage(page_num)
+            text += page.extract_text()
+    
+    # Divide el texto en partes más pequeñas si es necesario
+    max_length = 5000  # Máximo número de caracteres por archivo de audio
+    parts = [text[i:i + max_length] for i in range(0, len(text), max_length)]
+    
+    # Convierte cada parte en un archivo de audio
+    for i, part in enumerate(parts):
+        tts = gTTS(part, lang='es')
+        part_audio_file = f"{audio_file_prefix}_part{i+1}.mp3"
+        tts.save(part_audio_file)
+        print(f"Guardado: {part_audio_file}")
+
+# Ejemplo de uso
+pdf_to_audio('documento.pdf', 'audiolibro')
